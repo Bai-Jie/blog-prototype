@@ -5,7 +5,7 @@ import {
   withRouter
 } from 'react-router-dom'
 import './App.css';
-import {blog} from "./MockData";
+import {blog2 as blog} from "./MockData";
 
 function BlogPreview({id, blog, onClickBlog}) {
   return (
@@ -20,7 +20,7 @@ function BlogView({blog}) {
   return (
     <div>
       <h2>{blog.title}</h2>
-      <p>{blog.content}</p>
+      {blog.contentReact}
     </div>
   );
 }
