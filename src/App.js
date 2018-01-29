@@ -1,21 +1,67 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import {
+  BrowserRouter as Router,
+  Route,
+  withRouter
+} from 'react-router-dom'
 import './App.css';
+import {blog} from "./MockData";
 
-class App extends Component {
+function BlogPreview({id, blog, onClickBlog}) {
+  return (
+    <div>
+      <h2 onClick={onClickBlog.bind(this, id)}>{blog.title}</h2>
+      {/*<p>{blog.content}</p>*/}
+    </div>
+  );
+}
+
+function BlogView({blog}) {
+  return (
+    <div>
+      <h2>{blog.title}</h2>
+      <p>{blog.content}</p>
+    </div>
+  );
+}
+
+function BlogList({blogs, onClickBlog}) {
+  return blogs.article.map(
+    (article, index) => <BlogPreview key={index} id={index} blog={article} onClickBlog={onClickBlog}/>
+  );
+}
+
+class BlogApp extends Component {
+
+  onClickBlog = id => {
+    const {history} = this.props;
+    history.push(`/blogs/${id}`)
+  };
+
   render() {
+    const blogs = blog;
+
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+        <Route exact path="/" render={() => (
+          <BlogList blogs={blogs} onClickBlog={this.onClickBlog}/>
+        )}/>
+        <Route path="/blogs/:id" render={({match}) => (
+          <BlogView blog={blogs.article[match.params.id]}/>
+        )}/>
       </div>
     );
   }
+}
+
+const WrapBlogApp = withRouter(BlogApp);
+
+function App() {
+  return (
+    <Router>
+      <WrapBlogApp/>
+    </Router>
+  );
 }
 
 export default App;
