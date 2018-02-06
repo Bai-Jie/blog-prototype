@@ -1,0 +1,7 @@
+{
+  "name": "blog-server",
+  "version": "1.0.0",
+  "repository": "https://github.com/Bai-Jie/blog-prototype",
+  "license": "MIT",
+  "private": true
+}
