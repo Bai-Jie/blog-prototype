@@ -5,7 +5,7 @@ import {
   withRouter
 } from 'react-router-dom'
 import './App.css';
-import {blog2 as blog} from "./MockData";
+import {contentToReactComponent, fetchBlogs} from "./business";
 
 function BlogPreview({id, blog, onClickBlog}) {
   return (
@@ -33,13 +33,15 @@ function BlogList({blogs, onClickBlog}) {
 
 class BlogApp extends Component {
 
+  blogs = this.props.blogs;
+
   onClickBlog = id => {
     const {history} = this.props;
     history.push(`/blogs/${id}`)
   };
 
   render() {
-    const blogs = blog;
+    const blogs = this.blogs;
 
     return (
       <div className="App">
@@ -56,12 +58,32 @@ class BlogApp extends Component {
 
 const WrapBlogApp = withRouter(BlogApp);
 
-function App() {
-  return (
-    <Router>
-      <WrapBlogApp/>
-    </Router>
-  );
+class App extends Component {
+
+  state = {blogs: null, isLoading: true};
+
+  constructor(props) {
+    super(props);
+
+    fetchBlogs()
+      .then(it => this.setState({blogs: it, isLoading: false}));
+  }
+
+  render() {
+    const {isLoading, blogs} = this.state;
+    if (isLoading) {
+      return <div>Loading...</div>;
+    }
+
+    const reactBlogs = {
+      article: blogs.map(value => ({...value, contentReact: contentToReactComponent(value)}))
+    };
+    return (
+      <Router>
+        <WrapBlogApp blogs={reactBlogs}/>
+      </Router>
+    );
+  }
 }
 
 export default App;
