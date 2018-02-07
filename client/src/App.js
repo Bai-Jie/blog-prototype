@@ -2,16 +2,15 @@ import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  withRouter
+  Link
 } from 'react-router-dom'
 import './App.css';
 import {contentToReactComponent, fetchBlogs} from "./business";
 
-function BlogPreview({id, blog, onClickBlog}) {
+function BlogPreview({id, blog}) {
   return (
     <div>
-      <h2 onClick={onClickBlog.bind(this, id)}>{blog.title}</h2>
-      {/*<p>{blog.content}</p>*/}
+      <h2><Link to={`/blogs/${id}`}>{blog.title}</Link></h2>
     </div>
   );
 }
@@ -25,9 +24,9 @@ function BlogView({blog}) {
   );
 }
 
-function BlogList({blogs, onClickBlog}) {
+function BlogList({blogs}) {
   return blogs.article.map(
-    (article, index) => <BlogPreview key={index} id={index} blog={article} onClickBlog={onClickBlog}/>
+    (article, index) => <BlogPreview key={index} id={index} blog={article} />
   );
 }
 
@@ -35,18 +34,13 @@ class BlogApp extends Component {
 
   blogs = this.props.blogs;
 
-  onClickBlog = id => {
-    const {history} = this.props;
-    history.push(`/blogs/${id}`)
-  };
-
   render() {
     const blogs = this.blogs;
 
     return (
       <div className="App">
         <Route exact path="/" render={() => (
-          <BlogList blogs={blogs} onClickBlog={this.onClickBlog}/>
+          <BlogList blogs={blogs} />
         )}/>
         <Route path="/blogs/:id" render={({match}) => (
           <BlogView blog={blogs.article[match.params.id]}/>
@@ -55,8 +49,6 @@ class BlogApp extends Component {
     );
   }
 }
-
-const WrapBlogApp = withRouter(BlogApp);
 
 class App extends Component {
 
@@ -80,7 +72,7 @@ class App extends Component {
     };
     return (
       <Router>
-        <WrapBlogApp blogs={reactBlogs}/>
+        <BlogApp blogs={reactBlogs}/>
       </Router>
     );
   }
