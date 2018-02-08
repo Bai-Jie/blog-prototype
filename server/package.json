@@ -10,6 +10,8 @@
     "dev": "concurrently \"webpack --watch\" \"nodemon --watch build/dist build/dist/bundle.js\""
   },
   "dependencies": {
+    "better-sqlite3": "^4.1.0",
+    "commander": "^2.14.1",
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "express-graphql": "^0.6.11",

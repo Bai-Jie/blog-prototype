@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import graphQLHTTP from 'express-graphql';
 import {buildSchema} from "graphql";
+import Database from "better-sqlite3";
 
 // Construct a schema, using GraphQL schema language
 const schema = buildSchema(`
@@ -22,20 +23,22 @@ const root = {
   hello: () => {
     return 'Hello world!';
   },
-  blogs() {
-    return [
-      {title: "title 0", format: "plaintext", content: "blog 0"},
-      {title: "title 1", format: "plaintext", content: "blog 1"},
-      {title: "title 2", format: "plaintext", content: "blog 2"},
-      {title: "title 3", format: "plaintext", content: "blog 3"},
-      {title: "title 4", format: "plaintext", content: "blog 4"},
-      {title: "title 5", format: "plaintext", content: "blog 5"},
-      {title: "server?", format: "plaintext", content: "hello from server @ " + new Date()},
-      {title: "raw html sample", format: "html", content: "Hello from <strong>HTML</strong> <script>alert('bad')</script>"},
-      {title: "markdown sample", format: "markdown", content: "Hello from **Markdown** <script>alert('bad')</script>"}
-    ];
-  }
+  blogs: getBlogs
 };
+
+
+const options = {
+  // memory: true
+};
+const db = new Database('foobar.db', options);
+
+function getBlogs() {
+  const showData =`SELECT title, format, content FROM article`;
+  return db.prepare(showData).all();
+}
+
+
+
 
 const GRAPHQL_PORT = 8080;
 
