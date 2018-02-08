@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Link
+  Link,
+  withRouter
 } from 'react-router-dom'
+import qs from 'qs';
 import './App.css';
 import {contentToReactComponent, fetchBlogs} from "./business";
 
@@ -19,14 +21,55 @@ function BlogView({blog}) {
   return (
     <div>
       <h2>{blog.title}</h2>
-      {blog.contentReact}
+      {blog.contentReact()}
     </div>
   );
 }
 
-function BlogList({blogs}) {
-  return blogs.article.map(
-    (article, index) => <BlogPreview key={index} id={index} blog={article} />
+const BlogList = withRouter(({location, blogs}) => {
+  let {page, pageSize} = qs.parse(location.search.substring(1));
+  page = page || 1;
+  page = +page;
+  pageSize = pageSize || 25;
+  pageSize = +pageSize;
+
+  const begin = (page - 1) * pageSize;
+  const end = page * pageSize;
+  const blogPreviews = blogs.article.slice(begin, end).map(
+    (article, index) => <BlogPreview key={index + begin} id={index + begin} blog={article}/>
+  );
+
+  const pageLinksResult = pageLinks(page, pageSize, blogs.article.length);
+  return (
+    <div>
+      {pageLinksResult}
+      <div>
+        {blogPreviews}
+      </div>
+      {pageLinksResult}
+    </div>
+  );
+});
+
+function pageLinks(currentPage, pageSize, totalSize) {
+  const maxPage = Math.ceil(totalSize / pageSize);
+  const liTags = [];
+  for (let i = 1; i <= Math.min(maxPage, 40); i++) { //TODO improve this
+    liTags.push(
+      <li key={i} style={{display: 'inline', margin: 4}}>
+        {
+          currentPage !== i ? <Link to={`/?page=${i}&pageSize=${pageSize}`}>{i}</Link> : i
+        }
+      </li>
+    );
+  }
+  return (
+    <ul style={{
+      listStyleType: 'none',
+      padding: 0
+    }}>
+      {liTags}
+    </ul>
   );
 }
 
@@ -68,7 +111,7 @@ class App extends Component {
     }
 
     const reactBlogs = {
-      article: blogs.map(value => ({...value, contentReact: contentToReactComponent(value)}))
+      article: blogs.map(value => ({...value, contentReact: () => contentToReactComponent(value)}))
     };
     return (
       <Router>
